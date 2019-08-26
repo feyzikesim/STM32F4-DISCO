@@ -35,7 +35,7 @@ void adc_init(void)
 
 int main()
 {
-	uint16_t Temperature;
+	uint16_t Temperature, adc_value;
 
 	adc_init();
 
@@ -43,9 +43,7 @@ int main()
 	{
 		read_adc();
 
-		Temperature = ADC1->DR;
-		Temperature *= 3300;
-		Temperature /= 4096;
-		Temperature /= 10;
+		adc_value = ADC1->DR;
+                Temperature = (adc_value * 5 / 4096) / 0.01
 	}
 }
