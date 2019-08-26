@@ -20,11 +20,11 @@ void adc_inits(void)
 	ADC_TempSensorVrefintCmd(ENABLE);
 }
 
-void read_adc(void)
+uint16_t read_adc(void)
 {
 	ADC_SoftwareStartConv(ADC1);
 
 	while(ADC_GetFlagStatus(ADC1,ADC_FLAG_EOC)==RESET);
 
-	ADC_GetConversionValue(ADC1);
+	return ADC_GetConversionValue(ADC1);
 }
