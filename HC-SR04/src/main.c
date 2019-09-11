@@ -19,11 +19,11 @@
 #define LED_RCC     RCC_AHB1Periph_GPIOD
 
 /* Functions that used */
-void Delay_us(uint32_t us);
+void delay_us(uint32_t us);
 float distance_read(void);
 
-uint32_t i, j;
-float Distance_cm, dis;
+uint32_t i;
+float distance_cm;
 
 int main()
 {
@@ -61,45 +61,47 @@ int main()
 
 	while(1)
 	{
-		Distance_cm = distance_read();
+		distance_cm = distance_read();
 
-		if(Distance_cm < 50)
+		if(distance_cm < 50)
 		{
 			GPIO_SetBits(LED_PORT, LED_1);
 			GPIO_ResetBits(LED_PORT, LED_2 | LED_3 | LED_4);
 		}
-		else if(Distance_cm < 100)
+		else if(distance_cm < 100)
 		{
 			GPIO_SetBits(LED_PORT, LED_2);
 			GPIO_ResetBits(LED_PORT, LED_1 | LED_3 | LED_4);
 		}
-		else if(Distance_cm < 150)
+		else if(distance_cm < 150)
 		{
 			GPIO_SetBits(LED_PORT, LED_3);
 			GPIO_ResetBits(LED_PORT, LED_1 | LED_2 | LED_4);
 		}
-		else if(Distance_cm < 200)
+		else if(distance_cm < 200)
 		{
 			GPIO_SetBits(LED_PORT, LED_4);
 			GPIO_ResetBits(LED_PORT, LED_1 | LED_2 | LED_3);
 		}
 		else
 			GPIO_ResetBits(LED_PORT, LED_1 | LED_2 | LED_3 | LED_4);
-
 	}
 }
 
-void Delay_us(uint32_t us)
+void delay_us(uint32_t us)
 {
-  i = us;
-  while(i != 0);
+	i = us;
+	while(i);
 }
 
 float distance_read(void)
 {
+	float distance;
+        uint16_t ttl_high_us;
+
 	/* TRIG_PIN = 1 for 10 us */
 	GPIO_SetBits(TRIG_PORT, TRIG_PIN);
-	Delay_us(10);
+	delay_us(10);
 	GPIO_ResetBits(TRIG_PORT, TRIG_PIN);
 
 	/* Wait until ECHO_PIN = 1 */
@@ -111,20 +113,20 @@ float distance_read(void)
 	while(GPIO_ReadInputDataBit(ECHO_PORT, ECHO_PIN) == 1)
         {
 		if(SysTick->VAL == 0)					/* While the ECHO_PIN = 1 */
-			j++;			      		        /* j increases for every 1 us */
+			ttl_high_us++;		      		        /* j increases for every 1 us */
 		else
-			j=j;
+			ttl_high_us=ttl_high_us;
 	}
 
-	dis = j / 58.2;
-	j = 0;
-	Delay_us(10000);					/* Wait 10ms for sensor */
+	distance = ttl_high_us / 58;
+	ttl_high_us = 0;
+	delay_us(10000);					/* Wait 10ms for sensor */
 
-	return dis;
+	return distance;
 }
 
 void SysTick_Handler(void)
 {
-  if(i != 0)
-	  i--;
+	if(i)
+		i--;
 }
